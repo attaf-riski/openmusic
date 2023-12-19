@@ -16,12 +16,12 @@ Level: Menengah
 
 Back-End Developer memiliki peran penting dalam membangun sistem aplikasi, karena ia bertanggung jawab membuat service yang dapat mengelola serta mengamankan data yang digunakan oleh suatu aplikasi. Pengelolaan yang tidak baik dan tidak aman akan menimbulkan banyak kerugian bagi perusahaan, bahkan bisa memicu kebangkrutan. Kelas ini membahas tuntas materi dalam membangun RESTful service yang canggih dan aman seperti database, storage, hingga authentication, dan authorization.
 
-  **-Mengetahui cara yang baik dan aman dalam mengelola dan menyimpan data di server.** 
-  **-Meningkatkan performa backend dengan menggunakan teknik message queue dan caching di sisi server.** 
-  **-Memisahkan peran fokus dalam pengembangan sistem aplikasi.**
-  **-RESTful API merupakan Web Service yang banyak digunakan industri saat ini.**
-  **-Salah satu skill yang perlu dikuasai untuk menjadi Full-Stack Engineer.-**
-  **-Permintaan tinggi dari perusahan untuk seorang Back-End Developer di Indonesia.**
+  **-Mengetahui cara yang baik dan aman dalam mengelola dan menyimpan data di server.**  
+  **-Meningkatkan performa backend dengan menggunakan teknik message queue dan caching di sisi server.**  
+  **-Memisahkan peran fokus dalam pengembangan sistem aplikasi.** 
+  **-RESTful API merupakan Web Service yang banyak digunakan industri saat ini.** 
+  **-Salah satu skill yang perlu dikuasai untuk menjadi Full-Stack Engineer.-** 
+  **-Permintaan tinggi dari perusahan untuk seorang Back-End Developer di Indonesia.** 
   
 Evaluasi pembelajaran:
 
