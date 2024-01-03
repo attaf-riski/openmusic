@@ -3,6 +3,7 @@ const {Pool} = require('pg');
 const {nanoid} = require('nanoid');
 const InvariantError = require('../../exceptions/InvariantError');
 const NotFoundError = require('../../exceptions/NotFoundError');
+const {mapSong} = require('../../utils');
 
 /* eslint-disable require-jsdoc */
 class SongsService {
@@ -29,8 +30,24 @@ class SongsService {
     return result.rows[0].id;
   }
 
-  async getSongs() {
-    const result = await this._pool.query('SELECT id, title, performer FROM songs');
+  async getSongs({title, performer}) {
+    if (title === undefined) {
+      // eslint-disable-next-line no-param-reassign
+      title = '';
+    }
+
+    if (performer === undefined) {
+      // eslint-disable-next-line no-param-reassign
+      performer = '';
+    }
+
+    const query = {
+      text: 'SELECT id, title, performer FROM songs WHERE lower(title) LIKE $1 AND lower(performer) LIKE $2',
+      values: [`%${title.toLowerCase()}%`, `%${performer.toLowerCase()}%`],
+    };
+
+    const result = await this._pool.query(query);
+
     return result.rows;
   }
 
@@ -45,7 +62,16 @@ class SongsService {
       throw new NotFoundError('Lagu tidak ditemukan');
     }
 
-    return result.rows[0];
+    return mapSong(result.rows[0]);
+  }
+
+  async getSongsByAlbumId(albumId) {
+    const query = {
+      text: 'SELECT id, title, performer FROM songs WHERE album_id = $1',
+      values: [albumId],
+    };
+    const result = await this._pool.query(query);
+    return result.rows;
   }
 
   async editSongById(id, {title, year, performer, genre, duration, albumId}) {

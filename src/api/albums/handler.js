@@ -1,8 +1,9 @@
 /* eslint-disable require-jsdoc */
 class AlbumsHandler {
-  constructor(service, validator) {
+  constructor(service, songService, validator) {
     this._service = service;
     this._validator = validator;
+    this._songService = songService;
 
     this.postAlbumHandler = this.postAlbumHandler.bind(this);
     this.getAlbumsHandler = this.getAlbumsHandler.bind(this);
@@ -39,6 +40,7 @@ class AlbumsHandler {
   async getAlbumByIdHandler(request) {
     const {id} = request.params;
     const album = await this._service.getAlbumById(id);
+    album.songs = await this._songService.getSongsByAlbumId(id);
     return {
       status: 'success',
       data: {
