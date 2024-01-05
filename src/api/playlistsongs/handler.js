@@ -30,6 +30,7 @@ class PlaylistsongsHandler {
 
     const response = h.response({
       status: 'success',
+      message: 'Lagu berhasil ditambahkan ke playlist',
       data: {
         playlistsongId,
       },
