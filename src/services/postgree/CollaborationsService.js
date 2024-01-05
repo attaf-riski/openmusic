@@ -36,6 +36,7 @@ class CollaborationsService {
     };
 
     const result = await this._pool.query(query);
+    console.log(result);
 
     if (!result.rows.length) {
       throw new InvariantError('Kolaborasi gagal dihapus');
@@ -47,6 +48,7 @@ class CollaborationsService {
       text: 'SELECT * FROM collaborations WHERE playlist_id = $1 AND user_id = $2',
       values: [playlistId, userId],
     };
+
     const result = await this._pool.query(query);
 
     if (!result.rows.length) {

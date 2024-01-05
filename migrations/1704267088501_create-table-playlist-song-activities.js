@@ -16,8 +16,16 @@ exports.up = (pgm) => {
       type: 'VARCHAR(50)',
       notNull: true,
     },
+    song_title: {
+      type: 'TEXT',
+      notNull: true,
+    },
     user_id: {
       type: 'VARCHAR(50)',
+      notNull: true,
+    },
+    username: {
+      type: 'TEXT',
       notNull: true,
     },
     action: {
