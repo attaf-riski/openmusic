@@ -6,8 +6,9 @@ const NotFoundError = require('../../exceptions/NotFoundError');
 
 
 class PlaylistActivitiesService {
-  constructor() {
+  constructor(cacheService) {
     this._pool = new Pool();
+    this._cacheService = cacheService;
   }
 
   async activitiesAddSongPlaylist(playlistId, songId, userId) {
@@ -37,6 +38,8 @@ class PlaylistActivitiesService {
     };
 
     await this._pool.query(query);
+
+    await this._cacheService.delete(`playlist_activities:${playlistId}`);
   }
 
   async activitiesDeleteSongPlaylist(playlistId, songId, userId) {
@@ -66,31 +69,48 @@ class PlaylistActivitiesService {
     };
 
     await this._pool.query(query);
+
+    await this._cacheService.delete(`playlist_activities:${playlistId}`);
   }
 
   async getPlaylistActivities(playlistId) {
-    const query = {
-      text: 'SELECT * FROM playlist_song_activities WHERE playlist_id = $1',
-      values: [playlistId],
-    };
+    try {
+      const result = await this._cacheService.get(`playlist_activities:${playlistId}`);
+      return {
+        source: 'cache',
+        data: JSON.parse(result),
+      };
+    } catch (error) {
+      const query = {
+        text: 'SELECT * FROM playlist_song_activities WHERE playlist_id = $1',
+        values: [playlistId],
+      };
 
-    const result = await this._pool.query(query);
+      const result = await this._pool.query(query);
 
-    if (!result.rowCount) {
-      throw new NotFoundError('Tidak ada aktivitas playlist');
+      if (!result.rowCount) {
+        throw new NotFoundError('Tidak ada aktivitas playlist');
+      }
+
+      const resultMap = result.rows.map((data) => ({
+        username: data.username,
+        title: data.song_title,
+        action: data.action,
+        time: data.time,
+      }));
+
+      const resultBuffer = {
+        playlistId,
+        activities: resultMap,
+      };
+
+      await this._cacheService.set(`playlist_activities:${playlistId}`, JSON.stringify(resultBuffer));
+
+      return {
+        source: 'database',
+        data: resultBuffer,
+      };
     }
-
-    const resultMap = result.rows.map((data) => ({
-      username: data.username,
-      title: data.song_title,
-      action: data.action,
-      time: data.time,
-    }));
-
-    return {
-      playlistId,
-      activities: resultMap,
-    };
   }
 }
 

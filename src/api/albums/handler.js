@@ -1,21 +1,19 @@
 /* eslint-disable require-jsdoc */
+const autoBind = require('auto-bind');
+
 class AlbumsHandler {
   constructor(service, songService, validator) {
     this._service = service;
     this._validator = validator;
     this._songService = songService;
 
-    this.postAlbumHandler = this.postAlbumHandler.bind(this);
-    this.getAlbumsHandler = this.getAlbumsHandler.bind(this);
-    this.getAlbumByIdHandler = this.getAlbumByIdHandler.bind(this);
-    this.putAlbumByIdHandler = this.putAlbumByIdHandler.bind(this);
-    this.deleteAlbumByIdHandler = this.deleteAlbumByIdHandler.bind(this);
+    autoBind(this); // mem-bind nilai this untuk seluruh method sekaligus
   }
 
   async postAlbumHandler(request, h) {
     this._validator.validateAlbumPayload(request.payload);
     const {name, year} = request.payload;
-    const albumId = await this._service.addAlbum({name, year});
+    const albumId = await this._service.addAlbum(name, year);
 
     const response = h.response({
       status: 'success',
@@ -49,10 +47,11 @@ class AlbumsHandler {
     };
   }
 
-  async putAlbumByIdHandler(request, h) {
+  async putAlbumByIdHandler(request) {
+    const {name, year} = request.payload;
     this._validator.validateAlbumPayload(request.payload);
     const {id} = request.params;
-    await this._service.editAlbumById(id, request.payload);
+    await this._service.editAlbumById(id, name, year);
 
     return {
       status: 'success',
@@ -60,7 +59,7 @@ class AlbumsHandler {
     };
   }
 
-  async deleteAlbumByIdHandler(request, h) {
+  async deleteAlbumByIdHandler(request) {
     const {id} = request.params;
 
     await this._service.deleteAlbumById(id);

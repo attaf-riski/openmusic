@@ -1,18 +1,17 @@
 /* eslint-disable require-jsdoc */
+const autoBind = require('auto-bind');
+
 class UsersHandler {
   constructor(service, validator) {
     this._service = service;
     this._validator = validator;
 
-    this.postUserHandler = this.postUserHandler.bind(this);
-    this.getUserByIdHandler = this.getUserByIdHandler.bind(this);
+    autoBind(this); // mem-bind nilai this untuk seluruh method sekaligus
   }
 
   async postUserHandler(request, h) {
     this._validator.validateUserPayload(request.payload);
-    const {username, password, fullname} = request.payload;
-    // eslint-disable-next-line max-len
-    const userId = await this._service.addUser({username, password, fullname});
+    const userId = await this._service.addUser(request.payload);
 
     const response = h.response({
       status: 'success',
@@ -24,7 +23,7 @@ class UsersHandler {
     return response;
   }
 
-  async getUserByIdHandler(request, h) {
+  async getUserByIdHandler(request) {
     const {id} = request.params;
     const user = await this._service.getUserById(id);
 

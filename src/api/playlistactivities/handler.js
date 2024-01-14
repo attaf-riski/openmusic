@@ -1,12 +1,13 @@
 /* eslint-disable max-len */
 /* eslint-disable require-jsdoc */
+const autoBind = require('auto-bind');
+
 class PlaylistActivitiesHandler {
   constructor(service, playlistService ) {
     this._service = service;
     this._playlistService = playlistService;
 
-    this.postPlaylistActivityHandler = this.postPlaylistActivityHandler.bind(this);
-    this.getPlaylistActivitiesHandler = this.getPlaylistActivitiesHandler.bind(this);
+    autoBind(this); // mem-bind nilai this untuk seluruh method sekaligus
   }
 
   async postPlaylistActivityHandler(request, h) {
@@ -30,14 +31,19 @@ class PlaylistActivitiesHandler {
     const {id: credentialId} = request.auth.credentials;
     const {playlistId} = request.params;
     await this._playlistService.verifyPlaylistAccess(playlistId, credentialId);
-    const data = await this._service.getPlaylistActivities(playlistId);
+    const resultBuffer = await this._service.getPlaylistActivities(playlistId);
 
-    const result = {
+    const data = resultBuffer.data;
+
+
+    const response = h.response({
       status: 'success',
       data,
-    };
+    });
 
-    return result;
+    response.header('X-Data-Source', resultBuffer.source);
+
+    return response;
   }
 }
 

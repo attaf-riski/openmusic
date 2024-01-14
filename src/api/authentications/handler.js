@@ -1,6 +1,6 @@
 /* eslint-disable max-len */
 /* eslint-disable require-jsdoc */
-
+const autoBind = require('auto-bind');
 
 class AuthenticationsHandler {
   constructor(authenticationsService, usersService, tokenManager, validator) {
@@ -9,9 +9,7 @@ class AuthenticationsHandler {
     this._tokenManager = tokenManager;
     this._validator = validator;
 
-    this.postAuthenticationHandler = this.postAuthenticationHandler.bind(this);
-    this.putAuthenticationHandler = this.putAuthenticationHandler.bind(this);
-    this.deleteAuthenticationHandler = this.deleteAuthenticationHandler.bind(this);
+    autoBind(this); // mem-bind nilai this untuk seluruh method sekaligus
   }
 
   async postAuthenticationHandler(request, h) {
@@ -35,7 +33,7 @@ class AuthenticationsHandler {
   }
 
 
-  async putAuthenticationHandler(request, h) {
+  async putAuthenticationHandler(request) {
     this._validator.validatePutAuthenticationPayload(request.payload);
     const {refreshToken} = request.payload;
     await this._authenticationsService.verifyRefreshToken(refreshToken);
@@ -50,7 +48,7 @@ class AuthenticationsHandler {
     };
   }
 
-  async deleteAuthenticationHandler(request, h) {
+  async deleteAuthenticationHandler(request) {
     this._validator.validateDeleteAuthenticationPayload(request.payload);
 
     const {refreshToken} = request.payload;

@@ -1,22 +1,17 @@
 /* eslint-disable require-jsdoc */
+const autoBind = require('auto-bind');
+
 class SongsHandler {
   constructor(service, validator) {
     this._service = service;
     this._validator = validator;
 
-    this.postSongHandler = this.postSongHandler.bind(this);
-    this.getSongsHandler = this.getSongsHandler.bind(this);
-    this.getSongByIdHandler = this.getSongByIdHandler.bind(this);
-    this.putSongByIdHandler = this.putSongByIdHandler.bind(this);
-    this.deleteSongByIdHandler = this.deleteSongByIdHandler.bind(this);
+    autoBind(this); // mem-bind nilai this untuk seluruh method sekaligus
   }
 
   async postSongHandler(request, h) {
     this._validator.validateSongPayload(request.payload);
-    // eslint-disable-next-line max-len
-    const {title, year, performer, genre, duration, albumId} = request.payload;
-    // eslint-disable-next-line max-len
-    const songId = await this._service.addSong({title, year, performer, genre, duration, albumId});
+    const songId = await this._service.addSong(request.payload);
 
     const response = h.response({
       status: 'success',
@@ -30,29 +25,38 @@ class SongsHandler {
     return response;
   }
 
-  async getSongsHandler(request) {
-    const {title, performer} = request.query;
-    const songs = await this._service.getSongs({title, performer});
-    return {
+  async getSongsHandler(request, h) {
+    const data = await this._service.getSongs(request.query);
+    const songs = data.songs;
+    const response = h.response({
       status: 'success',
       data: {
         songs,
       },
-    };
+    });
+
+    response.header('X-Data-Source', data.source);
+
+    return response;
   }
 
-  async getSongByIdHandler(request) {
+  async getSongByIdHandler(request, h) {
     const {id} = request.params;
-    const song = await this._service.getSongById(id);
-    return {
+    const data = await this._service.getSongById(id);
+    const song = data.song;
+
+    const response = h.response({
       status: 'success',
       data: {
         song,
       },
-    };
+    });
+
+    response.header('X-Data-Source', data.source);
+    return response;
   }
 
-  async putSongByIdHandler(request, h) {
+  async putSongByIdHandler(request) {
     this._validator.validateSongPayload(request.payload);
     const {id} = request.params;
     await this._service.editSongById(id, request.payload);

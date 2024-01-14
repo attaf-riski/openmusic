@@ -1,5 +1,6 @@
 /* eslint-disable max-len */
 /* eslint-disable require-jsdoc */
+const autoBind = require('auto-bind');
 
 class PlaylistsongsHandler {
   constructor(service, playlistsService, songService, playlistsSongsActivitiesService, validator) {
@@ -9,9 +10,7 @@ class PlaylistsongsHandler {
     this._songService = songService;
     this._playlistsSongsActivitiesService = playlistsSongsActivitiesService;
 
-    this.postPlaylistsongHandler = this.postPlaylistsongHandler.bind(this);
-    this.getPlaylistsongByIdHandler = this.getPlaylistsongByIdHandler.bind(this);
-    this.deletePlaylistsongHandler = this.deletePlaylistsongHandler.bind(this);
+    autoBind(this); // mem-bind nilai this untuk seluruh method sekaligus
   }
 
   async postPlaylistsongHandler(request, h) {
@@ -39,7 +38,7 @@ class PlaylistsongsHandler {
     return response;
   }
 
-  async getPlaylistsongByIdHandler(request, h) {
+  async getPlaylistsongByIdHandler(request) {
     const {id: credentialId} = request.auth.credentials;
     const {playlistId} = request.params;
 
@@ -66,7 +65,7 @@ class PlaylistsongsHandler {
     };
   }
 
-  async deletePlaylistsongHandler(request, h) {
+  async deletePlaylistsongHandler(request) {
     this._validator.validatePlaylistsongPayload(request.payload);
     const {id: credentialId} = request.auth.credentials;
     const {songId} = request.payload;

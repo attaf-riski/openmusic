@@ -1,5 +1,6 @@
 /* eslint-disable max-len */
 /* eslint-disable require-jsdoc */
+const autoBind = require('auto-bind');
 
 class CollaborationsHandler {
   constructor(service, playlistService, userService, validator) {
@@ -8,8 +9,7 @@ class CollaborationsHandler {
     this._userService = userService;
     this._validator = validator;
 
-    this.postCollaborationHandler = this.postCollaborationHandler.bind(this);
-    this.deleteCollaborationHandler = this.deleteCollaborationHandler.bind(this);
+    autoBind(this); // mem-bind nilai this untuk seluruh method sekaligus
   }
 
   async postCollaborationHandler(request, h) {
@@ -29,7 +29,7 @@ class CollaborationsHandler {
     return response;
   }
 
-  async deleteCollaborationHandler(request, h) {
+  async deleteCollaborationHandler(request) {
     this._validator.validateCollaborationPayload(request.payload);
     const {id: credentialId} = request.auth.credentials;
     const {playlistId, userId} = request.payload;

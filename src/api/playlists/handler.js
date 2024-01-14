@@ -1,21 +1,21 @@
 /* eslint-disable max-len */
 /* eslint-disable require-jsdoc */
+const autoBind = require('auto-bind');
+
 class PlaylistsHandler {
   constructor(service, songService, validator) {
     this._service = service;
     this._validator = validator;
     this._songService = songService;
 
-    this.postPlaylistHandler = this.postPlaylistHandler.bind(this);
-    this.getPlaylistHandler = this.getPlaylistHandler.bind(this);
-    this.deletePlaylistHandler = this.deletePlaylistHandler.bind(this);
+    autoBind(this); // mem-bind nilai this untuk seluruh method sekaligus
   }
 
   async postPlaylistHandler(request, h) {
     this._validator.validatePlaylistPayload(request.payload);
     const {name} = request.payload;
-    const {id: credentialId} = request.auth.credentials;
-    const playlistId = await this._service.addPlaylist({name, owner: credentialId});
+    const {id} = request.auth.credentials;
+    const playlistId = await this._service.addPlaylist(name, id);
     const response = h.response({
       status: 'success',
       data: {
@@ -28,17 +28,21 @@ class PlaylistsHandler {
 
   async getPlaylistHandler(request, h) {
     const {id: credentialId} = request.auth.credentials;
-    const playlists = await this._service.getPlaylists(credentialId);
+    const data = await this._service.getPlaylists(credentialId);
 
-    return {
+    const playlists = data.playlists;
+
+    const response = h.response({
       status: 'success',
       data: {
         playlists,
       },
-    };
+    });
+    response.header('X-Data-Source', data.source);
+    return response;
   }
 
-  async deletePlaylistHandler(request, h) {
+  async deletePlaylistHandler(request) {
     const {playlistId} = request.params;
     const {id: credentialId} = request.auth.credentials;
     await this._service.verifyPlaylistOwner(playlistId, credentialId);
